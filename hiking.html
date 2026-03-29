@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tara Hiking?</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --primary-color: #00897b;
+    --primary-hover: #00695c;
+    --yes-color: #4caf50;
+    --yes-hover: #388e3c;
+    --no-color: #ffab91;
+    --text-color: #ffffff;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Fredoka', sans-serif;
+    background: url('your-image.jpg') no-repeat center center/cover;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 0;
+}
+
+.container {
+    text-align: center;
+    padding: 30px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.4s ease;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+p { font-size: 1.2rem; }
+
+.btn {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 10px;
+    transition: 0.2s;
+}
+
+.btn:hover { transform: translateY(-3px); }
+
+.primary-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+.primary-btn:hover { background-color: var(--primary-hover); }
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.4s;
+    z-index: 10;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal-content {
+    background: white;
+    color: black;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    transform: scale(0.8);
+    transition: 0.3s;
+    width: 300px;
+    height: 180px;
+    position: relative; /* ✅ container for button movement */
+}
+.modal-overlay.active .modal-content { transform: scale(1); }
+
+.btn-group {
+    margin-top: 20px;
+    position: relative; /* ✅ for absolute button positioning */
+    width: 100%;
+    height: 80px;
+}
+
+.yes-btn {
+    background-color: var(--yes-color);
+    color: white;
+    position: absolute;
+    left: 30px;
+    top: 20px;
+}
+
+.no-btn {
+    background-color: var(--no-color);
+    color: white;
+    position: absolute;
+    left: 150px;
+    top: 20px;
+}
+
+/* Success */
+.hidden-section { display: none; }
+
+.bounce-in {
+    animation: bounceIn 0.8s ease;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div id="main-screen" class="container">
+    <h1>Ready for an adventure? 🌲☁️</h1>
+    <button id="start-btn" class="btn primary-btn">Tara hiking?</button>
+</div>
+
+<div id="modal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>Are you sure? 👀🥾</h2>
+        <div class="btn-group">
+            <button id="yes-btn" class="btn yes-btn">Yes</button>
+            <button id="no-btn" class="btn no-btn">No</button>
+        </div>
+    </div>
+</div>
+
+<div id="success-screen" class="container hidden-section">
+    <h1 class="bounce-in">Yehey! 🎉</h1>
+    <p class="bounce-in">
+        Thanks for agreeing!<br>
+        Contact <strong>Brylle Eijansantos</strong> for more details hehe ⛰️
+    </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+const mainScreen = document.getElementById('main-screen');
+const modal = document.getElementById('modal');
+const startBtn = document.getElementById('start-btn');
+const yesBtn = document.getElementById('yes-btn');
+const noBtn = document.getElementById('no-btn');
+const successScreen = document.getElementById('success-screen');
+
+/* Show modal & hide main screen */
+startBtn.onclick = () => {
+    modal.classList.add('active');
+    mainScreen.style.display = 'none';
+};
+
+/* Move NO button inside modal and away from YES button */
+const moveNoButton = () => {
+    const container = document.querySelector('.btn-group');
+    const yesRect = yesBtn.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+
+    const btnWidth = noBtn.offsetWidth;
+    const btnHeight = noBtn.offsetHeight;
+
+    let x, y, distance;
+
+    do {
+        x = Math.random() * (container.offsetWidth - btnWidth);
+        y = Math.random() * (container.offsetHeight - btnHeight);
+
+        const noScreenX = containerRect.left + x;
+        const noScreenY = containerRect.top + y;
+
+        distance = Math.sqrt(
+            Math.pow(noScreenX - yesRect.left, 2) +
+            Math.pow(noScreenY - yesRect.top, 2)
+        );
+    } while (distance < 100); // ✅ keep far from Yes button
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+};
+
+/* Trigger move on hover AND click */
+noBtn.addEventListener('mouseover', moveNoButton);
+noBtn.addEventListener('click', moveNoButton);
+
+/* YES button */
+yesBtn.onclick = () => {
+    modal.classList.remove('active');
+    successScreen.style.display = 'block';
+    fireConfetti();
+};
+
+/* CONFETTI */
+function fireConfetti() {
+    let duration = 3000;
+    let end = Date.now() + duration;
+    let interval = setInterval(() => {
+        if (Date.now() > end) return clearInterval(interval);
+        confetti({
+            particleCount: 40,
+            spread: 100,
+            origin: { x: Math.random(), y: Math.random() - 0.2 }
+        });
+    }, 250);
+}
+</script>
+</body>
+</html>
